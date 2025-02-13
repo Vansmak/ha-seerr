@@ -1,9 +1,9 @@
-"""Support for Jellyseerr."""
+"""Support for Jellyseerr and Overseerr."""
 from datetime import timedelta
 import logging
 from typing import Any, Dict, Optional
 
-from pyjellyseerr import JellyseerrError
+from pyseerr import seerrError
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
@@ -20,33 +20,33 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the Jellyseerr sensor platform."""
-    jellyseerr = hass.data[DOMAIN][config_entry.entry_id]
+    """Set up the seerr sensor platform."""
+    seerr = hass.data[DOMAIN][config_entry.entry_id]
     sensors = []
     
     for sensor in SENSOR_TYPES:
         sensors.append(
-            JellyseerrSensor(
+            seerrSensor(
                 sensor,
                 SENSOR_TYPES[sensor]["type"],
-                jellyseerr,
+                seerr,
                 SENSOR_TYPES[sensor]["icon"],
             )
         )
     
     async_add_entities(sensors, True)
 
-class JellyseerrSensor(SensorEntity):
-    """Representation of a Jellyseerr sensor."""
+class seerrSensor(SensorEntity):
+    """Representation of a seerr sensor."""
 
-    def __init__(self, label: str, sensor_type: str, jellyseerr: Any, icon: str) -> None:
+    def __init__(self, label: str, sensor_type: str, seerr: Any, icon: str) -> None:
         """Initialize the sensor."""
         self._label = label
         self._type = sensor_type
-        self._jellyseerr = jellyseerr
+        self._seerr = seerr
         self._icon = icon
-        self._attr_unique_id = f"jellyseerr_{label}"
-        self._attr_name = f"Jellyseerr {sensor_type}"
+        self._attr_unique_id = f"seerr_{label}"
+        self._attr_name = f"seerr {sensor_type}"
         self._attr_icon = icon
         self._attr_extra_state_attributes: Dict[str, Any] = {}
         self._attr_native_value: Optional[int] = None
@@ -55,8 +55,8 @@ class JellyseerrSensor(SensorEntity):
         """Update the sensor."""
         try:
             if self._label == "issues":
-                issue_counts = await self._jellyseerr.async_get_issue_counts()
-                last_issue = await self._jellyseerr.async_get_last_issue()
+                issue_counts = await self._seerr.async_get_issue_counts()
+                last_issue = await self._seerr.async_get_last_issue()
                 self._attr_native_value = issue_counts.get("open", 0)
                 
                 # Merge issue counts with last issue details
@@ -66,8 +66,8 @@ class JellyseerrSensor(SensorEntity):
                 self._attr_extra_state_attributes = merged_dict
                 
             elif self._label == "movies":
-                counts = await self._jellyseerr.async_get_movie_requests_count()
-                last_request = await self._jellyseerr.async_get_last_movie_request()
+                counts = await self._seerr.async_get_movie_requests_count()
+                last_request = await self._seerr.async_get_last_movie_request()
                 
                 # Total count includes both standard and 4K requests
                 self._attr_native_value = counts.get("total", 0)
@@ -82,8 +82,8 @@ class JellyseerrSensor(SensorEntity):
                 }
                 
             elif self._label == "tv":
-                counts = await self._jellyseerr.async_get_tv_requests_count()
-                last_request = await self._jellyseerr.async_get_last_tv_request()
+                counts = await self._seerr.async_get_tv_requests_count()
+                last_request = await self._seerr.async_get_last_tv_request()
                 
                 # Total count includes both standard and 4K requests
                 self._attr_native_value = counts.get("total", 0)
@@ -98,8 +98,8 @@ class JellyseerrSensor(SensorEntity):
                 }
                 
             elif self._label == "pending":
-                counts = await self._jellyseerr.async_get_pending_requests_count()
-                last_request = await self._jellyseerr.async_get_last_pending_request()
+                counts = await self._seerr.async_get_pending_requests_count()
+                last_request = await self._seerr.async_get_last_pending_request()
                 
                 self._attr_native_value = counts.get("total", 0)
                 
@@ -113,8 +113,8 @@ class JellyseerrSensor(SensorEntity):
                 }
                 
             elif self._label == "total":
-                counts = await self._jellyseerr.async_get_total_requests_count()
-                last_request = await self._jellyseerr.async_get_last_request()
+                counts = await self._seerr.async_get_total_requests_count()
+                last_request = await self._seerr.async_get_last_request()
                 
                 self._attr_native_value = counts.get("total", 0)
                 
@@ -131,6 +131,6 @@ class JellyseerrSensor(SensorEntity):
                     "last_request": last_request
                 }
                 
-        except JellyseerrError as err:
-            _LOGGER.warning("Unable to update Jellyseerr sensor: %s", err)
+        except seerrError as err:
+            _LOGGER.warning("Unable to update seerr sensor: %s", err)
             self._attr_native_value = None
