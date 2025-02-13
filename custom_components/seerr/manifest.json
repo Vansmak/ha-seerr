@@ -1,0 +1,9 @@
+{
+  "domain": "seerr",
+  "name": "seerr",
+  "documentation": "https://github.com/vansmak/ha-seerr",
+  "issue_tracker": "https://github.com/vansmak/ha-seerr/issues",
+  "codeowners": ["@vaparr"],
+  "requirements": ["pyoverseerr==0.1.40"],
+  "version": "0.1.42"
+}
