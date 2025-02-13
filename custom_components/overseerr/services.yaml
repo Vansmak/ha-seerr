@@ -1,10 +1,19 @@
-# Overseerr services.yaml entries
+# Jellyseerr services.yaml entries
 submit_movie_request:
   description: Searches for a movie and requests the first result.
   fields:
     name:
       description: Search parameter
       example: "beverly hills cop"
+    type:
+      description: Request type (4k or standard)
+      example: "standard"
+      default: "standard"
+      selector:
+        select:
+          options:
+            - "standard"
+            - "4k"
 
 submit_tv_request:
   description: Searches for a TV show and requests the first result.
@@ -15,20 +24,44 @@ submit_tv_request:
     season:
       description: Which season(s) to request (first, latest or all)
       example: "latest"
+      default: "latest"
+      selector:
+        select:
+          options:
+            - "first"
+            - "latest"
+            - "all"
+    type:
+      description: Request type (4k or standard)
+      example: "standard"
+      default: "standard"
+      selector:
+        select:
+          options:
+            - "standard"
+            - "4k"
 
-submit_music_request:
-  description: Searches for a music album and requests the first result.
+update_media_status:
+  description: Updates the status of media by title search
   fields:
     name:
-      description: Search parameter
-      example: "nevermind"
-
-update_request:
-  description: Updates the status of specified request to pending/approve/decline/available
-  fields:
-    request_id:
-      description: ID of the request to update
-      example: 30
+      description: Title to search for
+      example: "Avatar"
     new_status:
-      description: New Status (can be pending/approve/decline/available)
+      description: New Status
       example: "approve"
+      selector:
+        select:
+          options:
+            - "pending"
+            - "approve"
+            - "decline"
+            - "available"
+    type:
+      description: Media type
+      example: "movie"
+      selector:
+        select:
+          options:
+            - "movie"
+            - "tv"
