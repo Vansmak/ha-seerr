@@ -1,5 +1,5 @@
-# Jellyseerr services.yaml entries
-submit_movie_request:
+# Services for Overseerr/Jellyseerr
+seerr.submit_movie_request:
   description: Searches for a movie and requests the first result.
   fields:
     name:
@@ -15,7 +15,7 @@ submit_movie_request:
             - "4k"
             - "standard"
 
-submit_tv_request:
+seerr.submit_tv_request:
   description: Searches for a TV show and requests the first result.
   fields:
     name:
@@ -41,10 +41,8 @@ submit_tv_request:
             - "4k"
             - "standard"
 
-[Rest of the file remains the same]
-
-update_media_status:
-  description: Updates the status of media by title search
+seerr.update_media_status:
+  description: Updates the status of media by title
   fields:
     name:
       description: Title to search for
