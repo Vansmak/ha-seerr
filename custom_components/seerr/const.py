@@ -1,4 +1,4 @@
-"""Support for Jellyseerr."""
+"""Support for Overseerr/Jellyseerr."""
 from typing import Final
 
 ATTR_NAME: Final = "name"
@@ -8,12 +8,12 @@ ATTR_STATUS: Final = "new_status"
 ATTR_MEDIA_TYPE: Final = "type"
 
 CONF_URLBASE: Final = "urlbase"
-DEFAULT_NAME = DOMAIN = "jellyseerr"
+DEFAULT_NAME = DOMAIN = "seerr"
 DEFAULT_PORT: Final = 5055
 DEFAULT_SEASON: Final = "latest"
 DEFAULT_SSL: Final = False
 DEFAULT_URLBASE: Final = ""
-DEFAULT_REQUEST_TYPE: Final = "standard"
+DEFAULT_REQUEST_TYPE: Final = "4k"  # Will default to standard if 4K not available
 
 SERVICE_MOVIE_REQUEST: Final = "submit_movie_request"
 SERVICE_TV_REQUEST: Final = "submit_tv_request"
