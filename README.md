@@ -50,6 +50,8 @@ jellyseerr:
 2. Go to Settings → General
 3. Copy your API key
 
+[Previous content remains the same until the Services section]
+
 ## Services
 
 ### `jellyseerr.submit_movie_request`
@@ -58,14 +60,14 @@ Request a movie.
 | Parameter | Required | Description |
 |-----------|----------|-------------|
 | `name` | Yes | Movie title to search for |
-| `type` | No | `standard` or `4k` (default: standard) |
+| `type` | No | `4k` or `standard`. Defaults to `4k` if your Jellyseerr user has 4K permissions, otherwise defaults to `standard`. Setting this to `standard` when you have 4K permissions allows you to specifically request the standard version. |
 
 Example:
 ```yaml
 service: jellyseerr.submit_movie_request
 data:
   name: "Avatar"
-  type: "4k"
+  type: # parameter is optional - will default to 4k if you have permissions # specify type: "standard" only if you specifically want standard quality when you have 4K permissions
 ```
 
 ### `jellyseerr.submit_tv_request`
@@ -75,15 +77,16 @@ Request a TV show.
 |-----------|----------|-------------|
 | `name` | Yes | TV show title to search for |
 | `season` | No | `first`, `latest`, or `all` (default: latest) |
-| `type` | No | `standard` or `4k` (default: standard) |
+| `type` | No | `4k` or `standard`. Defaults to `4k` if your Jellyseerr user has 4K permissions, otherwise defaults to `standard`. Setting this to `standard` when you have 4K permissions allows you to specifically request the standard version. |
 
+[Rest of the document remains the same]
 Example:
 ```yaml
 service: jellyseerr.submit_tv_request
 data:
   name: "Breaking Bad"
   season: "all"
-  type: "standard"
+  type: # parameter is optional - will default to 4k if you have permissions # specify type: "standard" only if you specifically want standard quality when you have 4K permissions
 ```
 
 ### `jellyseerr.update_media_status`
