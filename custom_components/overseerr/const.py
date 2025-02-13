@@ -1,29 +1,28 @@
-"""Support for Overseerr."""
-ATTR_NAME = "name"
-ATTR_SEASON = "season"
-ATTR_ID = "request_id"
-ATTR_STATUS = "new_status"
+"""Support for Jellyseerr."""
+from typing import Final
 
-CONF_URLBASE = "urlbase"
+ATTR_NAME: Final = "name"
+ATTR_SEASON: Final = "season"
+ATTR_TYPE: Final = "type"
+ATTR_STATUS: Final = "new_status"
+ATTR_MEDIA_TYPE: Final = "type"
 
-DEFAULT_NAME = DOMAIN = "overseerr"
-DEFAULT_PORT = 5055
-DEFAULT_SEASON = "latest"
-DEFAULT_SSL = False
-DEFAULT_URLBASE = ""
+CONF_URLBASE: Final = "urlbase"
+DEFAULT_NAME = DOMAIN = "jellyseerr"
+DEFAULT_PORT: Final = 5055
+DEFAULT_SEASON: Final = "latest"
+DEFAULT_SSL: Final = False
+DEFAULT_URLBASE: Final = ""
+DEFAULT_REQUEST_TYPE: Final = "standard"
 
-SERVICE_MOVIE_REQUEST = "submit_movie_request"
-SERVICE_MUSIC_REQUEST = "submit_music_request"
-SERVICE_TV_REQUEST = "submit_tv_request"
-SERVICE_UPDATE_REQUEST = "update_request"
+SERVICE_MOVIE_REQUEST: Final = "submit_movie_request"
+SERVICE_TV_REQUEST: Final = "submit_tv_request"
+SERVICE_UPDATE_STATUS: Final = "update_media_status"
 
-SENSOR_TYPES = {
+SENSOR_TYPES: Final = {
     "movies": {"type": "Movie requests", "icon": "mdi:movie"},
     "tv": {"type": "TV Show requests", "icon": "mdi:television-classic"},
-    # "music": {"type": "Music album requests", "icon": "mdi:album"},
     "pending": {"type": "Pending requests", "icon": "mdi:clock-alert-outline"},
-    # "approved": {"type": "Approved requests", "icon": "mdi:check"},
-    # "available": {"type": "Available requests", "icon": "mdi:download"},
     "total": {"type": "Total requests", "icon": "mdi:movie"},
-    "issues": {"type":"Issues", "icon": "mdi:movie"},
+    "issues": {"type": "Issues", "icon": "mdi:alert-circle-outline"},
 }
