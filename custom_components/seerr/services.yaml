@@ -6,14 +6,14 @@ submit_movie_request:
       description: Search parameter
       example: "beverly hills cop"
     type:
-      description: Request type (4k or standard)
+      description: Request type (4k or standard). If user has 4K permissions, defaults to 4k, otherwise defaults to standard.
       example: "standard"
-      default: "standard"
+      default: "4k"
       selector:
         select:
           options:
-            - "standard"
             - "4k"
+            - "standard"
 
 submit_tv_request:
   description: Searches for a TV show and requests the first result.
@@ -32,14 +32,16 @@ submit_tv_request:
             - "latest"
             - "all"
     type:
-      description: Request type (4k or standard)
+      description: Request type (4k or standard). If user has 4K permissions, defaults to 4k, otherwise defaults to standard.
       example: "standard"
-      default: "standard"
+      default: "4k"
       selector:
         select:
           options:
-            - "standard"
             - "4k"
+            - "standard"
+
+[Rest of the file remains the same]
 
 update_media_status:
   description: Updates the status of media by title search
