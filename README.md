@@ -1,123 +1,156 @@
----
-title: Overseerr
-description: Instructions on how to set up the Overseerr integration in Home Assistant.
-ha_category:
-  - Sensor
-ha_domain: overseerr
----
+# Jellyseerr for Home Assistant
 
-The `Overseerr` integration monitors data from your [Overseerr](https://overseerr.dev) instance.
+Monitor and control your [Jellyseerr](https://github.com/Fallenbagel/jellyseerr) or [Overseerr](https://overseerr.dev) instance from Home Assistant.
 
-## Setup
-Install of this component should be done via HACS
-* Go into HACS -> Intregrations
-* 3 Dots -> Custom Repositories
-* Add Custom Repository URL: https://github.com/vaparr/ha-overseerr
-* Category: Integration
+## Features
 
-Restart HA
+- Monitor requests, issues, and media status
+- Request movies and TV shows (including 4K content)
+- Update media status without needing request IDs
+- Real-time updates via webhooks
+- Compatible with both Jellyseerr and Overseerr
 
----
+## Installation
 
-This component needs to authenticate to your Overseerr instance using your `api_key`.
+### HACS (Recommended)
+1. Open HACS in Home Assistant
+2. Go to "Integrations"
+3. Click the three dots menu → "Custom Repositories"
+4. Add this repository URL
+5. Category: Integration
+6. Click "Install"
+7. Restart Home Assistant
 
-To find your `api_key` open the Overseerr web interface. Navigate to **Settings**, you should then be able to see your `api_key`.
-
+### Manual
+1. Copy the `jellyseerr` folder to your `custom_components` directory
+2. Restart Home Assistant
 
 ## Configuration
 
-If you want to enable this sensor, add the following lines to your `configuration.yaml`:
+### Option 1: UI Configuration
+1. Go to Settings → Devices & Services
+2. Click "Add Integration"
+3. Search for "Jellyseerr"
+4. Follow the configuration flow
+
+### Option 2: YAML Configuration
 
 ```yaml
-# Example configuration.yaml entry
-overseerr:
-  host: OVERSEERR_HOST
-  port: OVERSEERR_PORT
-  api_key: OVERSEERR_API_KEY
-  scan_interval: 600
+jellyseerr:
+  host: YOUR_HOST
+  port: 5055  # Optional, default: 5055
+  api_key: YOUR_API_KEY
+  ssl: false  # Optional, default: false
+  verify_ssl: true  # Optional, default: true
+  scan_interval: 300  # Optional, default: 300 seconds
 ```
-```
-{% configuration %}
-host:
-  description: The hostname or IP Address Overseerr is running on.
-  required: true
-  type: string
-api_key:
-  description: Your Overseerr API key. 
-  required: true
-  type: string
-port:
-  description: The port Overseerr is running on.
-  required: false
-  default: 5055
-  type: integer
-ssl:
-  description: Whether or not to use SSL when connecting to Overseerr.
-  required: false
-  default: false
-  type: boolean
-scan_interval:
-  description: Polling interval for Overseerr in seconds
-  required: false
-  default: 60
-  type: integer
-{% endconfiguration %}
-```
-## Full example for the configuration
 
-```yaml
-# Example configuration.yaml entry
-overseerr:
-  host: 192.168.1.62
-  port: 5055
-  api_key: MTYwODIpppppppppppppppYzLTI0OqqqqqqqqqqqqzIwLeeeeeee==
-```
+### API Key Location
+1. Open your Jellyseerr/Overseerr web interface
+2. Go to Settings → General
+3. Copy your API key
 
 ## Services
 
-### Submit request services
+### `jellyseerr.submit_movie_request`
+Request a movie.
 
-Available services: `submit_movie_request`, `submit_tv_request`
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `name` | Yes | Movie title to search for |
+| `type` | No | `standard` or `4k` (default: standard) |
 
-#### Service `submit_movie_request`
+Example:
+```yaml
+service: jellyseerr.submit_movie_request
+data:
+  name: "Avatar"
+  type: "4k"
+```
 
-Searches and requests the closest matching movie.
+### `jellyseerr.submit_tv_request`
+Request a TV show.
 
-| Service data attribute | Optional | Description                                      |
-| ---------------------- | -------- | ------------------------------------------------ |
-| `name`                 |      no  | Search parameter.                                |                          |
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `name` | Yes | TV show title to search for |
+| `season` | No | `first`, `latest`, or `all` (default: latest) |
+| `type` | No | `standard` or `4k` (default: standard) |
 
-#### Service `submit_tv_request`
+Example:
+```yaml
+service: jellyseerr.submit_tv_request
+data:
+  name: "Breaking Bad"
+  season: "all"
+  type: "standard"
+```
 
-Searches and requests the closest matching TV show.
+### `jellyseerr.update_media_status`
+Update media status by title (no request ID needed).
 
-| Service data attribute | Optional | Description                                                                                   |
-|------------------------|----------|-----------------------------------------------------------------------------------------------|
-| `name`                 |       no | Search parameter.                                                                             |
-| `season`               |      yes | Which season(s) to request. Must be one of `first`, `latest` or `all`. Defaults to latest.    |
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `name` | Yes | Media title to search for |
+| `type` | Yes | `movie` or `tv` |
+| `new_status` | Yes | `pending`, `approve`, `decline`, or `available` |
 
-## WebHook support
+Example:
+```yaml
+service: jellyseerr.update_media_status
+data:
+  name: "Avatar"
+  type: "movie"
+  new_status: "approve"
+```
 
-You can enable Webhook support in Overseerr to enable faster pending sensor updates.
+## Webhook Setup
 
-In overseerr, navigate to Settings -> Notifications > Webhook
+Enable real-time updates using webhooks:
 
-Check Enable Agent
+1. In Jellyseerr/Overseerr, go to Settings → Notifications → Webhook
+2. Enable Agent
+3. Set Webhook URL to:
+   ```
+   {YOUR_HA_URL}/api/webhook/{YOUR_API_KEY}
+   ```
+   Example: `http://homeassistant.local:8123/api/webhook/abcd1234...`
+4. Select notification types:
+   - Media Requested
+   - Media Approved
+   - Media Available
+5. Enable "Notifications for Auto-Approved Requests" in global settings
+6. Leave payload as default
+7. Authorization Header can be left blank
 
-for the Webhook URL use:
+With webhooks enabled, you can increase the `scan_interval` to reduce API calls.
 
-{{HA SERVER URL}}/api/webhook/{{OVERSEERR API KEY}}
+## Sensors
 
-http://homassist.local:8123/api/webhook/MTYwODIpppppppppppppppYzLTI0OqqqqqqqqqqqqzIwLeeeeeee==
+The integration provides several sensors:
+- Movie Requests
+- TV Show Requests
+- Pending Requests
+- Total Requests
+- Issues
 
-Select only the boxes "Media Requested", "Media Approved"
+Each sensor includes detailed attributes about the latest request or issue.
 
-* You will also want to have 'Enable Notifications for Auto-Approved Requests' checked in the global notifications area
+## Troubleshooting
 
-* payload can be left as default
+1. Check your API key is correct
+2. Verify host/port settings
+3. Check SSL settings if using HTTPS
+4. Enable debug logging:
+   ```yaml
+   logger:
+     default: info
+     logs:
+       custom_components.jellyseerr: debug
+   ```
 
-Authorization Header will most likley need to be left blank.
+## Support
 
-With webhooks enabled, you dont really need to poll overseerr anymore, so we suggest setting the scan_interval to a large value like 600 or more
-
-
+- Report issues on GitHub
+- Check existing issues before creating new ones
+- Include debug logs when reporting problems
