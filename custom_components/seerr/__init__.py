@@ -1,5 +1,3 @@
-# __init__.py
-"""Support for Seerr."""
 import logging
 
 import pyoverseerr
