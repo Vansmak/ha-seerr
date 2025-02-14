@@ -1,11 +1,11 @@
-"""Support for Jellyseerr."""
+"""Support for Seerr."""
 from __future__ import annotations
 
 import logging
 from typing import Any
 
 import voluptuous as vol
-from pyjellyseerr import JellyseerrClient, JellyseerrError
+from pyseerr import SeerrClient, SeerrError
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -64,7 +64,7 @@ CONFIG_SCHEMA = vol.Schema(
 )
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Set up the Jellyseerr component."""
+    """Set up the Seerr component."""
     if DOMAIN not in config:
         return True
 
@@ -80,10 +80,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Jellyseerr from a config entry."""
+    """Set up Seerr from a config entry."""
     session = async_get_clientsession(hass, verify_ssl=entry.data.get(CONF_VERIFY_SSL, True))
     
-    client = JellyseerrClient(
+    client = SeerrClient(
         host=entry.data[CONF_HOST],
         api_key=entry.data[CONF_API_KEY],
         port=entry.data.get(CONF_PORT, DEFAULT_PORT),
@@ -94,8 +94,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     try:
         await client.async_test_connection()
-    except JellyseerrError as err:
-        _LOGGER.error("Unable to connect to Jellyseerr: %s", err)
+    except SeerrError as err:
+        _LOGGER.error("Unable to connect to Seerr: %s", err)
         return False
 
     hass.data.setdefault(DOMAIN, {})
@@ -110,7 +110,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         
         try:
             await client.async_request_movie(name, request_type)
-        except JellyseerrError as err:
+        except SeerrError as err:
             _LOGGER.error("Unable to request movie: %s", err)
 
     async def handle_tv_request(call: ServiceCall) -> None:
@@ -121,7 +121,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         
         try:
             await client.async_request_tv(name, season, request_type)
-        except JellyseerrError as err:
+        except SeerrError as err:
             _LOGGER.error("Unable to request TV show: %s", err)
 
     async def handle_status_update(call: ServiceCall) -> None:
@@ -132,7 +132,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         
         try:
             await client.async_update_media_status(name, media_type, new_status)
-        except JellyseerrError as err:
+        except SeerrError as err:
             _LOGGER.error("Unable to update media status: %s", err)
 
     # Register services
@@ -147,7 +147,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         webhook.async_register(
             hass,
             DOMAIN,
-            "Jellyseerr",
+            "Seerr",
             webhook_id,
             webhook.async_generate_path(webhook_id),
             webhook.async_generate_url(hass, webhook_id),
