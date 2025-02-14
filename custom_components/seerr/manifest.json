@@ -1,6 +1,7 @@
+# manifest.json
 {
   "domain": "seerr",
-  "name": "seerr",
+  "name": "Seerr",
   "documentation": "https://github.com/vansmak/ha-seerr",
   "issue_tracker": "https://github.com/vansmak/ha-seerr/issues",
   "codeowners": ["@vaparr"],

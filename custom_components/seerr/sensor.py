@@ -1,136 +1,101 @@
-"""Support for Jellyseerr and Overseerr."""
+# sensor.py
+"""Support for Seerr."""
 from datetime import timedelta
 import logging
-from typing import Any, Dict, Optional
 
-from pyseerr import seerrError
+from pyoverseerr import OverseerrError
 
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity import Entity
 
 from .const import DOMAIN, SENSOR_TYPES
 
 _LOGGER = logging.getLogger(__name__)
-SCAN_INTERVAL = timedelta(seconds=300)
 
-async def async_setup_entry(
-    hass: HomeAssistant,
-    config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
-) -> None:
-    """Set up the seerr sensor platform."""
-    seerr = hass.data[DOMAIN][config_entry.entry_id]
+SCAN_INTERVAL = timedelta(seconds=86400)
+
+def setup_platform(hass, config, add_entities, discovery_info=None):
+    """Set up the Seerr sensor platform."""
+    if discovery_info is None:
+        return
+
     sensors = []
-    
+
+    seerr = hass.data[DOMAIN]["instance"]
+
     for sensor in SENSOR_TYPES:
-        sensors.append(
-            seerrSensor(
-                sensor,
-                SENSOR_TYPES[sensor]["type"],
-                seerr,
-                SENSOR_TYPES[sensor]["icon"],
-            )
-        )
-    
-    async_add_entities(sensors, True)
+        sensor_label = sensor
+        sensor_type = SENSOR_TYPES[sensor]["type"]
+        sensor_icon = SENSOR_TYPES[sensor]["icon"]
+        sensors.append(SeerrSensor(
+            sensor_label, sensor_type, seerr, sensor_icon))
 
-class seerrSensor(SensorEntity):
-    """Representation of a seerr sensor."""
+    add_entities(sensors, True)
 
-    def __init__(self, label: str, sensor_type: str, seerr: Any, icon: str) -> None:
+class SeerrSensor(Entity):
+    """Representation of a Seerr sensor."""
+
+    def __init__(self, label, sensor_type, seerr, icon):
         """Initialize the sensor."""
+        self._state = None
         self._label = label
         self._type = sensor_type
         self._seerr = seerr
         self._icon = icon
-        self._attr_unique_id = f"seerr_{label}"
-        self._attr_name = f"seerr {sensor_type}"
-        self._attr_icon = icon
-        self._attr_extra_state_attributes: Dict[str, Any] = {}
-        self._attr_native_value: Optional[int] = None
+        self._last_request = None
 
-    async def async_update(self) -> None:
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return f"Seerr {self._type}"
+
+    @property
+    def icon(self):
+        """Return the icon to use in the frontend."""
+        return self._icon
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._state
+
+    @property
+    def extra_state_attributes(self):
+        """Attributes."""
+        return self._last_request
+
+    def update(self):
         """Update the sensor."""
+        _LOGGER.debug("Update Seerr sensor: %s", self.name)
         try:
             if self._label == "issues":
-                issue_counts = await self._seerr.async_get_issue_counts()
-                last_issue = await self._seerr.async_get_last_issue()
-                self._attr_native_value = issue_counts.get("open", 0)
-                
-                # Merge issue counts with last issue details
-                merged_dict = issue_counts.copy()
-                if last_issue:
-                    merged_dict["last_issue"] = last_issue
-                self._attr_extra_state_attributes = merged_dict
-                
-            elif self._label == "movies":
-                counts = await self._seerr.async_get_movie_requests_count()
-                last_request = await self._seerr.async_get_last_movie_request()
-                
-                # Total count includes both standard and 4K requests
-                self._attr_native_value = counts.get("total", 0)
-                
-                # Add detailed counts to attributes
-                self._attr_extra_state_attributes = {
-                    "standard_requests": counts.get("standard", 0),
-                    "4k_requests": counts.get("4k", 0),
-                    "pending_requests": counts.get("pending", 0),
-                    "approved_requests": counts.get("approved", 0),
-                    "last_request": last_request
-                }
-                
-            elif self._label == "tv":
-                counts = await self._seerr.async_get_tv_requests_count()
-                last_request = await self._seerr.async_get_last_tv_request()
-                
-                # Total count includes both standard and 4K requests
-                self._attr_native_value = counts.get("total", 0)
-                
-                # Add detailed counts to attributes
-                self._attr_extra_state_attributes = {
-                    "standard_requests": counts.get("standard", 0),
-                    "4k_requests": counts.get("4k", 0),
-                    "pending_requests": counts.get("pending", 0),
-                    "approved_requests": counts.get("approved", 0),
-                    "last_request": last_request
-                }
-                
-            elif self._label == "pending":
-                counts = await self._seerr.async_get_pending_requests_count()
-                last_request = await self._seerr.async_get_last_pending_request()
-                
-                self._attr_native_value = counts.get("total", 0)
-                
-                # Add detailed counts to attributes
-                self._attr_extra_state_attributes = {
-                    "movies": counts.get("movies", 0),
-                    "tv_shows": counts.get("tv", 0),
-                    "standard_requests": counts.get("standard", 0),
-                    "4k_requests": counts.get("4k", 0),
-                    "last_pending_request": last_request
-                }
-                
+                issueCounts = self._seerr.issueCounts
+                lastIssue = self._seerr.last_issue
+                self._state = issueCounts["open"]
+                merged_dict = issueCounts
+                if (lastIssue is not None):
+                    for key in lastIssue:
+                        merged_dict[key] = lastIssue[key]
+                self._last_request = merged_dict
+
+            if self._label == "movies":
+                self._state = self._seerr.movie_requests
+                self._last_request = self._seerr.last_movie_request
             elif self._label == "total":
-                counts = await self._seerr.async_get_total_requests_count()
-                last_request = await self._seerr.async_get_last_request()
-                
-                self._attr_native_value = counts.get("total", 0)
-                
-                # Add detailed counts to attributes
-                self._attr_extra_state_attributes = {
-                    "movies": counts.get("movies", 0),
-                    "tv_shows": counts.get("tv", 0),
-                    "standard_requests": counts.get("standard", 0),
-                    "4k_requests": counts.get("4k", 0),
-                    "approved": counts.get("approved", 0),
-                    "pending": counts.get("pending", 0),
-                    "available": counts.get("available", 0),
-                    "processing": counts.get("processing", 0),
-                    "last_request": last_request
-                }
-                
-        except seerrError as err:
-            _LOGGER.warning("Unable to update seerr sensor: %s", err)
-            self._attr_native_value = None
+                self._state = self._seerr.total_requests
+                self._last_request = self._seerr.last_total_request
+            elif self._label == "tv":
+                self._state = self._seerr.tv_requests
+                self._last_request = self._seerr.last_tv_request
+            elif self._label == "music":
+                self._state = self._seerr.music_requests
+                self._last_request = "Not Supported"
+            elif self._label == "pending":
+                self._state = self._seerr.pending_requests
+                self._last_request = self._seerr.last_pending_request
+            elif self._label == "approved":
+                self._state = self._seerr.approved_requests
+            elif self._label == "available":
+                self._state = self._seerr.available_requests
+        except OverseerrError as err:
+            _LOGGER.warning("Unable to update Seerr sensor: %s", err)
+            self._state = None
