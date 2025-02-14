@@ -30,7 +30,7 @@ Monitor and control your [Jellyseerr](https://github.com/Fallenbagel/jellyseerr)
 ### Option 1: UI Configuration
 1. Go to Settings → Devices & Services
 2. Click "Add Integration"
-3. Search for "Jellyseerr"
+3. Search for "seerr"
 4. Follow the configuration flow
 
 ### Option 2: YAML Configuration
@@ -149,7 +149,7 @@ Each sensor includes detailed attributes about the latest request or issue.
    logger:
      default: info
      logs:
-       custom_components.jellyseerr: debug
+       custom_components.seerr: debug
    ```
 
 ## Support
