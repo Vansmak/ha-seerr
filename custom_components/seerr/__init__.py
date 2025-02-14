@@ -1,3 +1,4 @@
+"""Support for Seerr."""
 import logging
 
 import pyoverseerr
@@ -18,7 +19,12 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 import homeassistant.helpers.config_validation as cv
-
+from homeassistant.helpers.discovery import load_platform
+from homeassistant.components.webhook import (
+    async_register as webhook_register,
+    async_generate_url,
+    async_generate_path,
+)
 from homeassistant.helpers.event import track_time_interval
 
 from .const import (
@@ -222,16 +228,23 @@ def setup(hass, config):
         schema=SERVICE_UPDATE_STATUS_SCHEMA,
     )
     
-    hass.helpers.discovery.load_platform("sensor", DOMAIN, {}, config)
+    load_platform(hass, "sensor", DOMAIN, {}, config)
  
     webhook_id = config[DOMAIN].get(CONF_API_KEY)
     _LOGGER.debug("webhook_id: %s", webhook_id)
 
     _LOGGER.info("Seerr Installing Webhook")
 
-    hass.components.webhook.async_register(DOMAIN, "Seerr", webhook_id, handle_webhook)
+    webhook_register(
+        hass,
+        DOMAIN,
+        "Seerr",
+        webhook_id,
+        handle_webhook,
+        allow_local_requests=True,
+    )
 
-    url = hass.components.webhook.async_generate_url(webhook_id)
+    url = async_generate_url(hass, webhook_id)
     _LOGGER.debug("webhook data: %s", url)
 
     track_time_interval(hass, update_sensors, scan_interval)
