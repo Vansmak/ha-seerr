@@ -1,4 +1,7 @@
 {
-  "name": "seerr",
-  "render_readme": true
+  "name": "Seerr",
+  "render_readme": true,
+  "content_in_root": false,
+  "domains": ["seerr"],
+  "homeassistant": "2024.1.0"
 }
