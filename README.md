@@ -1,4 +1,4 @@
-# Jellyseerr for Home Assistant
+# Seerr for Home Assistant
 
 Monitor and control your [Jellyseerr](https://github.com/Fallenbagel/jellyseerr) or [Overseerr](https://overseerr.dev) instance from Home Assistant.
 
@@ -22,7 +22,7 @@ Monitor and control your [Jellyseerr](https://github.com/Fallenbagel/jellyseerr)
 7. Restart Home Assistant
 
 ### Manual
-1. Copy the `jellyseerr` folder to your `custom_components` directory
+1. Copy the `seerr` folder to your `custom_components` directory
 2. Restart Home Assistant
 
 ## Configuration
@@ -36,7 +36,7 @@ Monitor and control your [Jellyseerr](https://github.com/Fallenbagel/jellyseerr)
 ### Option 2: YAML Configuration
 
 ```yaml
-jellyseerr:
+seerr:
   host: YOUR_HOST
   port: 5055  # Optional, default: 5055
   api_key: YOUR_API_KEY
@@ -54,42 +54,42 @@ jellyseerr:
 
 ## Services
 
-### `jellyseerr.submit_movie_request`
+### `seerr.submit_movie_request`
 Request a movie.
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
 | `name` | Yes | Movie title to search for |
-| `type` | No | `4k` or `standard`. Defaults to `4k` if your Jellyseerr user has 4K permissions, otherwise defaults to `standard`. Setting this to `standard` when you have 4K permissions allows you to specifically request the standard version. |
+| `type` | No | `4k` or `standard`. Defaults to `4k` if your seerr user has 4K permissions, otherwise defaults to `standard`. Setting this to `standard` when you have 4K permissions allows you to specifically request the standard version. |
 
 Example:
 ```yaml
-service: jellyseerr.submit_movie_request
+service: seerr.submit_movie_request
 data:
   name: "Avatar"
   type: # parameter is optional - will default to 4k if you have permissions # specify type: "standard" only if you specifically want standard quality when you have 4K permissions
 ```
 
-### `jellyseerr.submit_tv_request`
+### `seerr.submit_tv_request`
 Request a TV show.
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
 | `name` | Yes | TV show title to search for |
 | `season` | No | `first`, `latest`, or `all` (default: latest) |
-| `type` | No | `4k` or `standard`. Defaults to `4k` if your Jellyseerr user has 4K permissions, otherwise defaults to `standard`. Setting this to `standard` when you have 4K permissions allows you to specifically request the standard version. |
+| `type` | No | `4k` or `standard`. Defaults to `4k` if your seerr user has 4K permissions, otherwise defaults to `standard`. Setting this to `standard` when you have 4K permissions allows you to specifically request the standard version. |
 
 [Rest of the document remains the same]
 Example:
 ```yaml
-service: jellyseerr.submit_tv_request
+service: seerr.submit_tv_request
 data:
   name: "Breaking Bad"
   season: "all"
   type: # parameter is optional - will default to 4k if you have permissions # specify type: "standard" only if you specifically want standard quality when you have 4K permissions
 ```
 
-### `jellyseerr.update_media_status`
+### `seerr.update_media_status`
 Update media status by title (no request ID needed).
 
 | Parameter | Required | Description |
@@ -100,7 +100,7 @@ Update media status by title (no request ID needed).
 
 Example:
 ```yaml
-service: jellyseerr.update_media_status
+service: seerr.update_media_status
 data:
   name: "Avatar"
   type: "movie"
