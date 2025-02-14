@@ -1,5 +1,3 @@
-# const.py
-"""Support for Seerr."""
 ATTR_NAME = "name"
 ATTR_SEASON = "season"
 ATTR_STATUS = "new_status"
