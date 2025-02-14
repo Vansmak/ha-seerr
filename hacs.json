@@ -1,7 +1,8 @@
 {
-  "name": "Seerr",
-  "render_readme": true,
-  "content_in_root": false,
-  "domains": ["seerr"],
-  "homeassistant": "2024.1.0"
+    "name": "Seerr",
+    "render_readme": true,
+    "domain": "seerr",
+    "documentation": "https://github.com/Vansmak/ha-seerr",
+    "issue_tracker": "https://github.com/Vansmak/ha-seerr/issues",
+    "homeassistant": "2024.1.0"
 }
