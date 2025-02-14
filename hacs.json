@@ -1,8 +1,9 @@
 {
-    "name": "Seerr",
-    "render_readme": true,
     "domain": "seerr",
+    "name": "Seerr",
     "documentation": "https://github.com/Vansmak/ha-seerr",
     "issue_tracker": "https://github.com/Vansmak/ha-seerr/issues",
-    "homeassistant": "2024.1.0"
+    "codeowners": ["@vaparr"],
+    "requirements": ["pyoverseerr==0.1.40"],
+    "version": "0.1.42"
 }
