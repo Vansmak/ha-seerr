@@ -5,7 +5,7 @@ import logging
 from typing import Any
 
 import voluptuous as vol
-from pyseerr import SeerrClient, SeerrError
+from pyoverseerr import SeerrClient, SeerrError
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
